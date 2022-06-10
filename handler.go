@@ -11,8 +11,22 @@ import (
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
 func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
-	//	TODO: Implement this...
-	return nil
+	//type that is essentially a function
+	// we do not have to cast
+	// it's return a handler func
+	return func(w http.ResponseWriter, r *http.Request) {
+		// extract path from url
+		path := r.URL.Path
+		// if we can match a path => redirect
+		// sugar: if you can find a key in the map, it will be true
+		if dest, ok := pathsToUrls[path]; ok {
+			http.Redirect(w, r, dest, http.StatusFound)
+			//stop function
+			return
+		}
+		// otherwise call a fallback
+		fallback.ServeHTTP(w, r)
+	}
 }
 
 // YAMLHandler will parse the provided YAML and then return
@@ -32,6 +46,11 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.Handl
 // See MapHandler to create a similar http.HandlerFunc via
 // a mapping of paths to urls.
 func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
-	// TODO: Implement this...
-	return nil, nil
+	// parse yaml
+	// convert yaml array into map
+	// return map handler
+
+	pathsToUrls := map[string]string{}
+
+	return MapHandler(pathsToUrls, fallback), nil
 }
